@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /daftar
+Disallow: /login
+Disallow: /register
+
+Sitemap: https://pijar-beasiswa.example.com/sitemap.xml

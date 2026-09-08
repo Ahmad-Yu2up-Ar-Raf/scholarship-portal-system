@@ -1,0 +1,11 @@
+{
+  "name": "PIJAR BEASISWA",
+  "short_name": "PIJAR",
+  "description": "Platform beasiswa kampus — daftar cepat dengan filter IPK otomatis.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff7e8",
+  "theme_color": "#ffdc58",
+  "lang": "id",
+  "icons": [{ "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}

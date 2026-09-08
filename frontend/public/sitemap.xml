@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://pijar-beasiswa.example.com/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/beasiswa</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/peringkat</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/login</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/register</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+  <!-- Dynamic /beasiswa/:slug entries are injected at build time via scripts/generate-sitemap.mjs — fallback list below from seed -->
+  <url><loc>https://pijar-beasiswa.example.com/beasiswa/beasiswa-akademik</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/beasiswa/beasiswa-non-akademik</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/beasiswa/beasiswa-olahraga</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/beasiswa/beasiswa-seni-budaya</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://pijar-beasiswa.example.com/beasiswa/beasiswa-sains-teknologi</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+</urlset>
