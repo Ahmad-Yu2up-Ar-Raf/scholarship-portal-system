@@ -40,7 +40,7 @@ export function Login() {
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 md:px-8 py-8 md:py-12">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 md:p-8"><div className="w-full max-w-6xl">
       <SEO title="Masuk — PIJAR BEASISWA" description="Masuk ke akun PIJAR BEASISWA untuk mendaftar beasiswa kampus. Satu akun bisa daftar banyak program berbeda." path="/login" noindex />
       <div className="grid grid-cols-1 md:grid-cols-2 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] rounded-none overflow-hidden">
         <div className="bg-primary border-b-4 md:border-b-0 md:border-r-4 border-black p-8 flex flex-col justify-between gap-6">
@@ -76,6 +76,7 @@ export function Login() {
             <div className="text-sm text-center break-words">Belum punya akun? <Link to="/register" className="font-black underline">Daftar</Link></div>
           </form>
         </div>
+      </div>
       </div>
     </div>
   )

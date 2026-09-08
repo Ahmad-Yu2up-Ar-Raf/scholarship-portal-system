@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router"
+import { ResponsiveDialog } from "@/components/ui/responsive-dialog"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
@@ -7,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useBeasiswaPaged } from "@/features/beasiswa/hooks"
-import { playSound, unlockSound } from "@/lib/sound"
+import { unlockSound } from "@/lib/sound"
 import gsap from "gsap"
 import { SEO } from "@/components/seo/SEO"
 import { JsonLd, breadcrumbJsonLd } from "@/components/seo/JsonLd"
@@ -39,14 +40,9 @@ export function Peringkat() {
   const top3 = (podium.data?.data ?? []).slice(0, 3)
   const ordered = top3.length === 3 ? [top3[1], top3[0], top3[2]] : top3
   const totalPages = list.data?.meta.last_page ?? 1
-
-  useEffect(() => {
-    if (podium.data && podium.data.data.length > 0 && !celebrated.current) {
-      celebrated.current = true
-      unlockSound()
-      playSound("success", { volume: 0.9 })
-    }
-  }, [podium.data])
+  const [selected, setSelected] = useState<null | Record<string, unknown>>(null)
+  void celebrated
+  void unlockSound
 
   useEffect(() => {
     if (!podiumRef.current || top3.length === 0) return
@@ -54,7 +50,9 @@ export function Peringkat() {
     if (prefersReduced) return
     const ctx = gsap.context(() => {
       gsap.from(".podium-card", { opacity: 0, y: 32, duration: 0.8, ease: "power3.out", stagger: 0.15, clearProps: "opacity,visibility" })
-      gsap.to(".podium-champion", { y: -10, duration: 1.6, ease: "sine.inOut", yoyo: true, repeat: -1 })
+      gsap.to(".podium-float-0", { y: -8, duration: 1.8, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0 })
+      gsap.to(".podium-float-1", { y: -12, duration: 1.5, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.4 })
+      gsap.to(".podium-float-2", { y: -8, duration: 2.0, ease: "sine.inOut", yoyo: true, repeat: -1, delay: 0.8 })
       gsap.to(".podium-glow", { opacity: 0.5, duration: 2, ease: "sine.inOut", yoyo: true, repeat: -1, stagger: 0.4 })
     }, podiumRef)
     return () => ctx.revert()
@@ -82,21 +80,31 @@ export function Peringkat() {
           <p className="font-medium mt-2 max-w-xl break-words">Tiga pendaftar terverifikasi dengan IPK tertinggi. Terus kejar peringkatmu!</p>
         </div>
 
-        <div ref={podiumRef} className="relative mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <div ref={podiumRef} className="relative mt-8 flex flex-col md:flex-row items-stretch md:items-end justify-center gap-4 md:gap-8">
           {podium.isLoading && (
-            <div className="col-span-full flex items-center gap-2 font-bold"><Spinner /> Memuat juara...</div>
+            <div className="flex items-center gap-2 font-bold"><Spinner /> Memuat juara...</div>
           )}
           {ordered.map((row, i) => {
             const rank = top3.length === 3 ? [2, 1, 3][i] : i + 1
             const isChampion = rank === 1
+            const height = isChampion ? "md:h-[320px]" : rank === 2 ? "md:h-[250px]" : "md:h-[200px]"
+            const order = isChampion ? "order-1 md:order-2" : rank === 2 ? "order-2 md:order-1" : "order-3"
             return (
-              <div
+              <button
                 key={row.id}
-                className={`podium-card ${isChampion ? "podium-champion md:-mt-8" : ""} border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${RANK_STYLE[rank - 1] ?? "bg-white"}`}
+                type="button"
+                onClick={() => setSelected(row as unknown as Record<string, unknown>)}
+                className={`podium-card podium-float-${i} ${order} ${height} text-left border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex-1 ${RANK_STYLE[rank - 1] ?? "bg-white"}`}
+                style={{ filter: "drop-shadow(0 0 18px rgba(255,220,88,0.45))" }}
               >
                 <div className="flex items-center justify-between">
                   <span className="font-head text-4xl font-black">#{rank}</span>
-                  {isChampion && <span className="border-2 border-black bg-black text-white text-xs font-black px-2 py-1">JUARA 1</span>}
+                  {isChampion && (
+                    <span className="flex items-center gap-1 border-2 border-black bg-black text-white text-xs font-black px-2 py-1">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8l4 4 5-6 5 6 4-4-1.5 10h-15L3 8z" fill="#ffdc58" stroke="#000" strokeWidth="1.5" /></svg>
+                      JUARA 1
+                    </span>
+                  )}
                 </div>
                 <div className="mt-3 flex items-center gap-3">
                   {row.photo_url ? (
@@ -110,11 +118,11 @@ export function Peringkat() {
                   </div>
                 </div>
                 <div className="mt-2 text-xs font-bold border-2 border-black bg-white inline-block px-2 py-0.5 break-words">Semester {row.semester}</div>
-              </div>
+              </button>
             )
           })}
           {!podium.isLoading && top3.length === 0 && (
-            <div className="col-span-full border-4 border-black bg-white p-6 text-center font-black">Belum ada juara terverifikasi.</div>
+            <div className="border-4 border-black bg-white p-6 text-center font-black w-full">Belum ada juara terverifikasi.</div>
           )}
         </div>
       </section>
@@ -142,7 +150,7 @@ export function Peringkat() {
                 </TableHeader>
                 <TableBody>
                   {list.data.data.map((row, idx) => (
-                    <TableRow key={row.id} className="border-b-2 border-black">
+                    <TableRow key={row.id} className="border-b-2 border-black hover:bg-muted/50 cursor-pointer" onClick={() => setSelected(row as unknown as Record<string, unknown>)}>
                       <TableCell className="font-black">{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
                       <TableCell>
                         <span className="flex items-center gap-2">
@@ -180,6 +188,51 @@ export function Peringkat() {
       <div className="text-center">
         <Link to="/daftar" className="inline-block border-4 border-black bg-black text-white font-head font-black px-8 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">Daftar Sekarang →</Link>
       </div>
+
+      <ApplicantDetailDialog selected={selected} onClose={() => setSelected(null)} />
     </div>
   )
 }
+
+function ApplicantDetailDialog({ selected, onClose }: { selected: Record<string, unknown> | null; onClose: () => void }) {
+  return (
+    <ResponsiveDialog open={!!selected} onOpenChange={(o: boolean) => { if (!o) onClose() }} title={String((selected as { nama?: string } | null)?.nama ?? "Detail Pendaftar")} description={`Status: ${String((selected as { status_ajuan?: string } | null)?.status_ajuan ?? "-")}`}>
+      {selected && (
+        <div className="space-y-4">
+          <div className="flex items-center gap-4 border-4 border-black bg-primary p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            {(selected as { photo_url?: string }).photo_url ? (
+              <img src={String((selected as { photo_url?: string }).photo_url)} alt="Foto" className="rounded-full h-24 w-24 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0" />
+            ) : (
+              <div className="rounded-full h-24 w-24 border-4 border-black bg-white flex items-center justify-center font-head font-black text-2xl shrink-0">{String((selected as { nama?: string }).nama ?? "?").charAt(0)}</div>
+            )}
+            <div className="min-w-0">
+              <div className="font-head font-black text-lg break-words">{String((selected as { nama?: string }).nama ?? "-")}</div>
+              <div className="font-head text-3xl font-black">IPK {Number((selected as { ipk?: string }).ipk ?? 0).toFixed(2)}</div>
+              <Badge className="mt-1 border-2 border-black bg-black text-white font-black rounded-none">{String((selected as { status_ajuan?: string }).status_ajuan ?? "-")}</Badge>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+            <DetailItem label="Email" value={String((selected as { email?: string }).email ?? "-")} />
+            <DetailItem label="HP" value={String((selected as { hp?: string }).hp ?? "-")} />
+            <DetailItem label="Semester" value={String((selected as { semester?: string }).semester ?? "-")} />
+            <DetailItem label="Asal Sekolah" value={String((selected as { asal_sekolah?: string }).asal_sekolah ?? "-")} />
+            <DetailItem label="Kota" value={String((selected as { kota_domisili?: string }).kota_domisili ?? "-")} />
+            <DetailItem label="Beasiswa" value={String((selected as { beasiswa?: string }).beasiswa ?? "-")} />
+            <div className="sm:col-span-2"><DetailItem label="Berkas" value={String((selected as { berkas_path?: string }).berkas_path ?? "-")} /></div>
+            <div className="sm:col-span-2"><DetailItem label="Catatan" value={String((selected as { catatan?: string }).catatan ?? "-")} /></div>
+          </div>
+        </div>
+      )}
+    </ResponsiveDialog>
+  )
+}
+
+function DetailItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-2 border-black bg-white p-2 break-words">
+      <div className="text-xs font-black uppercase">{label}</div>
+      <div className="font-medium break-words">{value}</div>
+    </div>
+  )
+}
+

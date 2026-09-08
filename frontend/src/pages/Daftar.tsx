@@ -35,45 +35,11 @@ const beasiswaFormSchema = z.object({
   scholarship_id: z.number().min(1, "Pilih beasiswa"),
   catatan: z.string().trim().min(20, "Ceritakan alasanmu (min 20 karakter)").max(2000),
   asal_sekolah: z.string().trim().min(3, "Minimal 3 karakter").max(100),
+  tanggal_lahir: z.string().trim().max(30),
+  kota_domisili: z.string().trim().max(100),
   photo: z.array(z.union([z.instanceof(File), z.string()])).min(1, "Foto profil wajib diunggah").max(1, "Maks 1 foto"),
   berkas: z.array(z.union([z.instanceof(File), z.string()])).min(1, "Upload berkas wajib").max(1, "Maks 1 berkas"),
 })
-
-type PhotoPreviewProps = {
-  file: File | string | undefined
-  onRemove: () => void
-}
-
-function PhotoAvatarPreview({ file, onRemove }: PhotoPreviewProps) {
-  const [url, setUrl] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (file instanceof File) {
-      const u = URL.createObjectURL(file)
-      setUrl(u)
-      return () => URL.revokeObjectURL(u)
-    }
-    setUrl(typeof file === "string" ? file : null)
-    return undefined
-  }, [file])
-
-  if (!file) return null
-
-  return (
-    <div className="flex items-center gap-4 border-4 border-black bg-white p-3 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-      {url ? (
-        <img src={url} alt="Foto profil" className="rounded-full h-24 w-24 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0" />
-      ) : (
-        <div className="rounded-full h-24 w-24 border-4 border-black bg-muted flex items-center justify-center font-black shrink-0">?</div>
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="font-head text-sm font-black truncate">{file instanceof File ? file.name : String(file).split("/").pop()}</div>
-        <div className="text-xs font-bold text-muted-foreground">{file instanceof File ? `${(file.size / 1024).toFixed(1)} KB • Siap diunggah` : "Tersimpan"}</div>
-      </div>
-      <Button type="button" onClick={onRemove} className="shrink-0 rounded-none border-2 border-black bg-red-500 text-white font-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-600">Hapus</Button>
-    </div>
-  )
-}
 
 export function Daftar() {
   const navigate = useNavigate()
@@ -84,6 +50,7 @@ export function Daftar() {
   const { data: scholarships } = useScholarships()
   const { data: myApps } = useMyBeasiswa(!!user)
   const containerRef = useRef<HTMLDivElement>(null)
+  const beasiswaFieldRef = useRef<HTMLDivElement>(null)
   const isEligible = ipk >= 3
   const [pickerOpen, setPickerOpen] = useState(false)
 
@@ -123,6 +90,8 @@ export function Daftar() {
       beasiswa: initial.slug,
       scholarship_id: initial.id,
       asal_sekolah: "",
+      tanggal_lahir: "",
+      kota_domisili: "",
       catatan: "",
       photo: [] as Array<File | string>,
       berkas: [] as Array<File | string>,
@@ -153,6 +122,8 @@ export function Daftar() {
       fd.append("beasiswa", value.beasiswa)
       fd.append("scholarship_id", String(value.scholarship_id))
       fd.append("asal_sekolah", value.asal_sekolah)
+      if (value.tanggal_lahir) fd.append("tanggal_lahir", value.tanggal_lahir)
+      if (value.kota_domisili) fd.append("kota_domisili", value.kota_domisili)
       fd.append("catatan", value.catatan)
       const photo = (value.photo ?? [])[0]
       if (!(photo instanceof File)) { playSound("error"); toast.error("Foto wajib", { description: "Unggah foto profil JPG/PNG." }); return }
@@ -263,16 +234,12 @@ export function Daftar() {
           <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit() }} className="space-y-6" noValidate>
             <div className="gsap-field border-4 border-black bg-cyan-300 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
               <form.AppField name="photo">
-                {(field) => {
-                  const val = (field.state.value ?? [])[0] as File | string | undefined
-                  return (
-                    <div className="space-y-2">
-                      <span className="font-head text-sm font-black uppercase">Foto Profil * (wajib)</span>
-                      {val && <PhotoAvatarPreview file={val} onRemove={() => { field.handleChange([]); field.handleBlur() }} />}
-                      <field.ImagesUpload label="" maxFiles={1} disabled={!isEligible} accept="image/*" acceptedTypes={["image/jpeg","image/jpg","image/png"]} />
-                    </div>
-                  )
-                }}
+                {(field) => (
+                  <div className="space-y-2">
+                    <span className="font-head text-sm font-black uppercase">Foto Profil * (wajib)</span>
+                    <field.ImagesUpload label="" maxFiles={1} disabled={!isEligible} accept="image/*" acceptedTypes={["image/jpeg","image/jpg","image/png"]} variant="avatar" />
+                  </div>
+                )}
               </form.AppField>
               <p className="text-xs font-bold text-black mt-1 break-words">Wajib: foto formal JPG/PNG max 2MB. Avatar bulat muncul otomatis setelah dipilih.</p>
             </div>
@@ -288,18 +255,26 @@ export function Daftar() {
                   <form.AppField name="hp">{(field) => <field.Input label="Nomor HP * (angka saja)" placeholder="081234567890" inputMode="numeric" />}</form.AppField>
                 </div>
                 <div className="gsap-field">
+                  <form.AppField name="tanggal_lahir">{(field) => <field.Input label="Tanggal Lahir" type="date" />}</form.AppField>
+                </div>
+              </div>
+              <div className="space-y-6 min-w-0">
+                <div className="gsap-field">
                   <form.AppField name="semester">{(field) => <field.Select label="Semester * (1–8)" options={SEMESTER_OPTIONS} placeholder="Pilih semester" />}</form.AppField>
                 </div>
                 <div className="gsap-field">
                   <form.AppField name="asal_sekolah">{(field) => <field.Input label="Asal Sekolah *" placeholder="SMA Negeri 1 Jakarta" />}</form.AppField>
                 </div>
-              </div>
-              <div className="space-y-6 min-w-0">
+                <div className="gsap-field">
+                  <form.AppField name="kota_domisili">{(field) => <field.Input label="Kota Domisili" placeholder="Jakarta" />}</form.AppField>
+                </div>
                 <div className="gsap-field">
                   <form.AppField name="ipk">{(field) => <field.Input label="IPK (otomatis sistem)" placeholder="IPK" disabled />}</form.AppField>
                   <p className="text-xs text-muted-foreground mt-1 break-words">Diambil dari SIM Akademik — tidak dapat diedit.</p>
                 </div>
-                <div className="gsap-field">
+                
+              </div>
+              <div className="gsap-field md:col-span-2" ref={beasiswaFieldRef}>
                   <form.AppField name="beasiswa">
                     {(field) => {
                       const current = options.find((o) => o.value === field.state.value)
@@ -323,13 +298,12 @@ export function Daftar() {
                               <span className="text-muted-foreground">{isEligible ? "Pilih beasiswa — klik untuk cari" : "Terkunci — IPK < 3.0"}</span>
                             )}
                           </button>
-                          {field.state.meta.errors[0] ? <p className="text-xs font-black text-red-600 break-words">⚠ {String((field.state.meta.errors[0] as { message?: string })?.message ?? field.state.meta.errors[0])}</p> : null}
+                          {field.state.meta.errors[0] ? <p className="text-xs font-black text-red-600 break-words">⚠ {String(((field.state.meta.errors[0] as unknown) as { message?: string })?.message ?? field.state.meta.errors[0])}</p> : null}
                         </div>
                       )
                     }}
                   </form.AppField>
                   <p className="text-xs text-muted-foreground mt-1 break-words">Bukan dropdown biasa — klik untuk buka katalog mini dengan pencarian.</p>
-                </div>
               </div>
               <div className="gsap-field md:col-span-2">
                 <form.AppField name="catatan">
@@ -349,7 +323,7 @@ export function Daftar() {
                           aria-invalid={hasErr}
                           className="w-full border-4 border-black bg-white p-4 font-medium shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none outline-none focus:bg-yellow-50 break-words"
                         />
-                        {hasErr ? <p className="text-xs font-black text-red-600 break-words">⚠ {String((field.state.meta.errors[0] as { message?: string })?.message ?? field.state.meta.errors[0])}</p> : null}
+                        {hasErr ? <p className="text-xs font-black text-red-600 break-words">⚠ {String(((field.state.meta.errors[0] as unknown) as { message?: string })?.message ?? field.state.meta.errors[0])}</p> : null}
                       </div>
                     )
                   }}

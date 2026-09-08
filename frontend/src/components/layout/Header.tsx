@@ -58,7 +58,7 @@ export function Header() {
   return (
     <header ref={headerRef} className="sticky top-0 z-50 bg-background border-b-4 border-black shadow-[0px_4px_0px_0px_rgba(0,0,0,1)]">
       <div className="bg-black text-white text-xs font-bold">
-        <div className="max-w-7xl mx-auto px-4 py-1 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto w-full px-4 md:px-8 py-1 flex items-center justify-between">
           <span className="flex items-center gap-2">
             <span className="bg-primary text-black px-2 py-0.5">KEMDIKBUD RI</span>
             <span className="hidden md:inline">PIJAR • PLATFORM BEASISWA CERDAS</span>
@@ -66,7 +66,7 @@ export function Header() {
           <span className="hidden lg:inline">Verifikasi 3–5 Hari Kerja • 100% Gratis</span>
         </div>
       </div>
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto w-full px-4 md:px-8 py-3 flex items-center justify-between gap-4">
         <Link to="/" className="font-head text-lg md:text-xl font-black tracking-tight border-2 border-black bg-primary px-3 py-1.5 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] transition-all">
           PIJAR<span className="bg-black text-white px-1.5 ml-1">BEASISWA</span>
         </Link>

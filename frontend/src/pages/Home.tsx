@@ -164,7 +164,7 @@ export function Home() {
         {!scholarshipsLoading && types.length > 0 && (
           <div className="columns-1 md:columns-2 gap-6 space-y-6">
             {types.map((t) => (
-              <Card key={t.id} className="gsap-card break-inside-avoid border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all mb-6" style={{ backgroundColor: (t as unknown as { color_theme?: string }).color_theme ?? undefined }}>
+              <Card key={t.id} className="gsap-card break-inside-avoid border-4 border-black bg-primary shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] rounded-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all mb-6" style={{ backgroundColor: (t as unknown as { color_theme?: string }).color_theme ?? undefined }}>
                 <CardHeader>
                   <CardTitle className="font-head text-xl flex items-center gap-2 break-words">
                     <span className="border-2 border-black bg-black text-white px-2 py-0.5 text-sm shrink-0">{t.id === "akademik" ? "01" : "02"}</span>
@@ -174,7 +174,7 @@ export function Home() {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="border-2 border-black bg-white p-3 text-sm font-mono leading-relaxed break-words">{t.syarat}</div>
-                  <div className="text-xs font-bold bg-white border-2 border-black inline-block px-2 py-1 break-words">{t.label}</div>
+                  <div className="flex gap-2 flex-wrap"><span className="text-xs font-bold bg-white border-2 border-black inline-block px-2 py-1 break-words">{t.label}</span><span className="text-xs font-black bg-black text-white border-2 border-black inline-block px-2 py-1">{t.count} pendaftar</span></div>
                   <div className="flex gap-2">
                     <Link to={`/beasiswa/${t.id}`} onClick={() => playSound("open")} className={cn(buttonVariants({ variant: "outline" }), "flex-1 border-2 border-black bg-white font-bold")}>Detail</Link>
                     <Link to={`/daftar?type=${t.id}`} onClick={() => playSound("select")} className={cn(buttonVariants({ variant: "default" }), "flex-1 border-2 border-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] bg-black text-white font-black")}>Daftar →</Link>
@@ -184,6 +184,44 @@ export function Home() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="border-4 border-black bg-black text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6 md:p-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 justify-between">
+          <h2 className="font-head text-xl font-black border-2 border-white bg-primary text-black px-3 py-1 shadow-[3px_3px_0px_0px_rgba(255,255,255,0.9)] break-words">PAPAN PERINGKAT</h2>
+          <Link to="/peringkat" className="text-xs font-black border-2 border-white bg-white text-black px-3 py-1.5 shrink-0">Lihat Semua →</Link>
+        </div>
+        <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {topRecipients.map((r, i) => (
+            <div key={r.id} className={`border-4 border-white p-3 ${i === 0 ? "bg-yellow-300 text-black" : i === 1 ? "bg-cyan-300 text-black" : "bg-orange-300 text-black"}`}>
+              <div className="font-head text-3xl font-black">#{i + 1}</div>
+              <div className="font-black break-words truncate">{r.nama}</div>
+              <div className="font-head font-black">IPK {Number(r.ipk).toFixed(2)}</div>
+            </div>
+          ))}
+          {topRecipients.length === 0 && <div className="col-span-full border-2 border-white p-4 text-center font-bold">Belum ada juara — jadilah yang pertama!</div>}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <h2 className="font-head text-xl font-black border-2 border-black bg-black text-white px-3 py-1 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] uppercase break-words">Cara Mendaftar</h2>
+          <div className="h-1 bg-black flex-1 hidden sm:block" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+            { n: "1", t: "Buat Akun", d: "Daftar gratis di /register. Satu akun untuk semua program.", c: "bg-primary" },
+            { n: "2", t: "Pilih Beasiswa", d: "Jelajahi katalog, buka detail, klik Daftar Sekarang.", c: "bg-cyan-300" },
+            { n: "3", t: "Unggah Berkas", d: "Foto JPG/PNG + transkrip PDF/ZIP + alasan yang kuat.", c: "bg-[#ff6b9d] text-white" },
+            { n: "4", t: "Pantau Peringkat", d: "Cek status di /peringkat. Naik ke podium juara!", c: "bg-green-300" },
+          ].map((s) => (
+            <div key={s.n} className={`border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${s.c}`}>
+              <div className="font-head text-3xl font-black">{s.n}</div>
+              <div className="font-bold text-sm mt-1 break-words">{s.t}</div>
+              <div className="text-xs font-medium mt-1 break-words">{s.d}</div>
+            </div>
+          ))}
+        </div>
       </section>
 
       <section className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-6">

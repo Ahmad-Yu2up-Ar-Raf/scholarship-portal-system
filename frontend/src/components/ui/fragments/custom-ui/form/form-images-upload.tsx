@@ -13,6 +13,7 @@ interface FormImagesUploadProps extends Omit<
   disabled?: boolean
   accept?: string
   acceptedTypes?: string[]
+  variant?: "document" | "avatar"
 }
 
 /**
@@ -25,6 +26,7 @@ export function FormImagesUpload({
   disabled,
   accept,
   acceptedTypes,
+  variant = "document",
   ...props
 }: FormImagesUploadProps) {
   const field = useFieldContext<Array<string | File>>()
@@ -57,6 +59,7 @@ export function FormImagesUpload({
         disabled={isDisabled}
         accept={accept}
         acceptedTypes={acceptedTypes}
+        variant={variant}
       />
     </FormBase>
   )

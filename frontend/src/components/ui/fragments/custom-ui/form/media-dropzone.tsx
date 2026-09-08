@@ -21,6 +21,7 @@ interface MediaDropzoneProps {
   disabled?: boolean
   accept?: string
   acceptedTypes?: string[]
+  variant?: "document" | "avatar"
 }
 
 const DEFAULT_ACCEPTED_TYPES = ["application/pdf", "application/zip", "application/x-zip-compressed", "image/jpeg", "image/jpg", "image/png"]
@@ -112,6 +113,7 @@ export function MediaDropzone({
   disabled = false,
   accept,
   acceptedTypes,
+  variant = "document",
 }: MediaDropzoneProps) {
   const [isDragActive, setIsDragActive] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -156,6 +158,32 @@ export function MediaDropzone({
 
   const atLimit = items.length >= (multiple ? maxFiles : 1)
 
+  if (variant === "avatar" && items.length > 0) {
+    const item = items[0]
+    const isFile = typeof item !== "string"
+    const src = isFile ? previewFor(item as File) : (item as string)
+    const name = isFile ? (item as File).name : (item as string).split("/").pop() ?? ""
+    return (
+      <div className={cn("flex w-full items-center gap-4", disabled && "pointer-events-none opacity-50")}>
+        <div className="relative shrink-0">
+          <img src={src} alt={name || "Foto profil"} className="rounded-full h-32 w-32 md:h-40 md:w-40 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" />
+          <Button
+            type="button"
+            aria-label="Hapus foto"
+            onClick={() => handleRemove(item)}
+            className="absolute -right-1 -top-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-black bg-red-500 p-0 text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-600"
+          >
+            <HugeiconsIcon icon={Cancel01Icon} className="size-4 text-white" />
+          </Button>
+        </div>
+        <div className="min-w-0">
+          <div className="font-head text-sm font-black truncate">{name}</div>
+          <div className="text-xs font-bold text-muted-foreground">Foto terpasang — klik X untuk ganti</div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       className={cn(
@@ -163,7 +191,7 @@ export function MediaDropzone({
         disabled && "pointer-events-none opacity-50"
       )}
     >
-      {items.length > 0 && (
+      {items.length > 0 && variant !== "avatar" && (
         <div className={cn("grid gap-3", multiple ? "grid-cols-1" : "grid-cols-1")}>
           {items.map((item, index) => (
             <Tile
