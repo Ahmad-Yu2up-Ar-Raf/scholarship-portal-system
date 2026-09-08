@@ -7,6 +7,8 @@
 [![SEO](https://img.shields.io/badge/SEO-react--helmet--async%20%7C%20JSON--LD%20%7C%20sitemap-0a0?labelColor=000)](#seo)
 [![License](https://img.shields.io/badge/license-MIT-000?labelColor=000)](#license)
 
+> **Repo:** `https://github.com/Ahmad-Yu2up-Ar-Raf/scholarship-portal-system` · Clone: `git clone https://github.com/Ahmad-Yu2up-Ar-Raf/scholarship-portal-system.git`
+
 ---
 
 ## Daftar Isi
@@ -31,8 +33,13 @@
 
 ## Arsitektur
 
+```bash
+git clone https://github.com/Ahmad-Yu2up-Ar-Raf/scholarship-portal-system.git
+cd scholarship-portal-system
 ```
-Beasiswa-app/
+
+```
+scholarship-portal-system/
 ├── backend/   Laravel 12+ API-only  → http://127.0.0.1:8000/api/v1
 │   ├── app/Http/Controllers/{BeasiswaController, ScholarshipController}
 │   ├── app/Models/{Beasiswa, Scholarship, User}
@@ -101,7 +108,7 @@ Matrix lengkap + resolusi konflik → [`docs/PRD.md §3`](./docs/PRD.md#3-target
 ## Struktur Proyek
 
 ```
-Beasiswa-app/
+scholarship-portal-system/
 ├── backend/
 │   ├── app/Enums/ScholarshipType.php
 │   ├── app/Http/Controllers/BeasiswaController.php
