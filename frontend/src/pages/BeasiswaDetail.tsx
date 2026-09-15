@@ -58,7 +58,7 @@ export function BeasiswaDetail() {
           <h2 className="font-head text-xl font-black uppercase">Dokumen Wajib</h2>
           <div className="mt-4 space-y-2 text-sm font-medium">
             <div className="border-2 border-black bg-white p-3 break-words"><b>Transkrip nilai</b> — PDF/ZIP, max 5MB, jelas terbaca</div>
-            <div className="border-2 border-black bg-white p-3 break-words"><b>Foto profil</b> — JPG/PNG, max 2MB, formal</div>
+            <div className="border-2 border-black bg-white p-3 break-words"><b>Foto profil</b> — JPG/PNG/WEBP, max 2MB, formal</div>
             <div className="border-2 border-black bg-white p-3 break-words"><b>Asal sekolah + alasan</b> — min 20 karakter, jujur & spesifik</div>
           </div>
           <div className="mt-4 border-2 border-black bg-black text-white p-3 text-xs font-bold break-words">Verifikasi 3–5 hari kerja • Status awal “belum di verifikasi” • Pantau di /peringkat</div>

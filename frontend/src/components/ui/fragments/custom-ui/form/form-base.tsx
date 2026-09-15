@@ -74,7 +74,7 @@ export function FormBase({
   )
 
   const captionElem = isInvalid ? (
-    <FieldError className="mt-2 text-xs" errors={errors} />
+    <FieldError className="mt-2 text-xs font-bold text-red-700" errors={errors} />
   ) : description && !isInvalid ? (
     <FieldDescription>{description}</FieldDescription>
   ) : null

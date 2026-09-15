@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -22,10 +22,14 @@ interface MediaDropzoneProps {
   accept?: string
   acceptedTypes?: string[]
   variant?: "document" | "avatar"
+  /** Overrides the helper line under the dropzone (variant-aware default otherwise). */
+  helperText?: string
+  /** Per-field size cap in bytes (defaults to 5MB document cap). */
+  maxBytes?: number
 }
 
-const DEFAULT_ACCEPTED_TYPES = ["application/pdf", "application/zip", "application/x-zip-compressed", "image/jpeg", "image/jpg", "image/png"]
-const DEFAULT_ACCEPTED_EXTS = [".pdf", ".zip", ".jpg", ".jpeg", ".png"]
+const DEFAULT_ACCEPTED_TYPES = ["application/pdf", "application/zip", "application/x-zip-compressed", "image/jpeg", "image/jpg", "image/png", "image/webp"]
+const DEFAULT_ACCEPTED_EXTS = [".pdf", ".zip", ".jpg", ".jpeg", ".png", ".webp"]
 const MAX_BYTES = 5 * 1024 * 1024
 
 const itemKey = (item: ImageItem, index: number): string =>
@@ -53,7 +57,15 @@ function previewFor(file: File): string {
   return url
 }
 
-const isImageFile = (file: File) => file.type.startsWith("image/") || /\.(jpe?g|png)$/i.test(file.name)
+function revokePreview(file: File): void {
+  const url = previewUrls.get(file)
+  if (url) {
+    URL.revokeObjectURL(url)
+    previewUrls.delete(file)
+  }
+}
+
+const isImageFile = (file: File) => file.type.startsWith("image/") || /\.(jpe?g|png|webp)$/i.test(file.name)
 
 const Tile = function Tile({
   item,
@@ -114,18 +126,27 @@ export function MediaDropzone({
   accept,
   acceptedTypes,
   variant = "document",
+  helperText,
+  maxBytes,
 }: MediaDropzoneProps) {
   const [isDragActive, setIsDragActive] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const types = acceptedTypes ?? DEFAULT_ACCEPTED_TYPES
-  const exts = accept ? accept.split(",").map((s) => s.trim().toLowerCase()).filter((s) => s.startsWith(".")) : DEFAULT_ACCEPTED_EXTS
+  // ponytail: `accept="image/*"` yields zero dot-exts — fall back to defaults
+  // so extension matching never silently degrades to MIME-only.
+  const dotExts = accept ? accept.split(",").map((s) => s.trim().toLowerCase()).filter((s) => s.startsWith(".")) : DEFAULT_ACCEPTED_EXTS
+  const exts = dotExts.length > 0 ? dotExts : DEFAULT_ACCEPTED_EXTS
   const effectiveAccept = accept ?? DEFAULT_ACCEPTED_TYPES.join(",") + "," + DEFAULT_ACCEPTED_EXTS.join(",")
+  const limit = maxBytes ?? MAX_BYTES
+  const defaultHelper = variant === "avatar"
+    ? "Format: JPG, PNG, WEBP — Maks 2MB • Foto formal terlihat jelas"
+    : "Hanya PDF atau ZIP — maks 5MB per file • Pastikan transkrip/sertifikat jelas terbaca"
 
   const addFiles = useCallback(
     (incoming: FileList | File[]) => {
       const accepted: File[] = []
       for (const file of Array.from(incoming)) {
-        if (!isAcceptedFile(file, types, exts) || file.size > MAX_BYTES) continue
+        if (!isAcceptedFile(file, types, exts) || file.size > limit) continue
         if (
           items.some(
             (it) =>
@@ -146,15 +167,25 @@ export function MediaDropzone({
         : [accepted[accepted.length - 1]]
       onChange(next)
     },
-    [items, multiple, maxFiles, onChange]
+    [items, multiple, maxFiles, onChange, types, exts, limit]
   )
 
   const handleRemove = useCallback(
     (target: ImageItem) => {
+      if (target instanceof File) revokePreview(target)
       onChange(items.filter((it) => !itemMatches(it, target)))
     },
     [items, onChange]
   )
+
+  // Revoke object URLs on unmount so re-selected files never serve stale blobs.
+  const itemsRef = useRef(items)
+  itemsRef.current = items
+  useEffect(() => () => {
+    for (const it of itemsRef.current) {
+      if (it instanceof File) revokePreview(it)
+    }
+  }, [])
 
   const atLimit = items.length >= (multiple ? maxFiles : 1)
 
@@ -166,7 +197,8 @@ export function MediaDropzone({
     return (
       <div className={cn("flex w-full items-center gap-4", disabled && "pointer-events-none opacity-50")}>
         <div className="relative shrink-0">
-          <img src={src} alt={name || "Foto profil"} className="rounded-full h-32 w-32 md:h-40 md:w-40 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" />
+          {/* key forces a fresh <img> per file so the preview can never stick on a stale blob */}
+          <img key={isFile ? `${(item as File).name}-${(item as File).size}-${(item as File).lastModified}` : (item as string)} src={src} alt={name || "Foto profil"} className="rounded-full h-32 w-32 md:h-40 md:w-40 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" />
           <Button
             type="button"
             aria-label="Hapus foto"
@@ -248,7 +280,7 @@ export function MediaDropzone({
             {isDragActive ? "Lepaskan berkas di sini" : "Letakkan berkas di sini, atau klik untuk memilih"}
           </p>
           <p className={cn("text-xs font-bold", isInvalid ? "text-red-600" : "text-muted-foreground")}>
-            Hanya PDF atau ZIP — maks 5MB per file • Pastikan transkrip/sertifikat jelas terbaca
+            {helperText ?? defaultHelper}
           </p>
         </div>
       )}

@@ -14,6 +14,8 @@ interface FormImagesUploadProps extends Omit<
   accept?: string
   acceptedTypes?: string[]
   variant?: "document" | "avatar"
+  helperText?: string
+  maxBytes?: number
 }
 
 /**
@@ -27,6 +29,8 @@ export function FormImagesUpload({
   accept,
   acceptedTypes,
   variant = "document",
+  helperText,
+  maxBytes,
   ...props
 }: FormImagesUploadProps) {
   const field = useFieldContext<Array<string | File>>()
@@ -53,13 +57,15 @@ export function FormImagesUpload({
           field.handleChange(items)
           field.handleBlur()
         }}
-        multiple
+        multiple={maxFiles > 1}
         maxFiles={maxFiles}
         isInvalid={isInvalid}
         disabled={isDisabled}
         accept={accept}
         acceptedTypes={acceptedTypes}
         variant={variant}
+        helperText={helperText}
+        maxBytes={maxBytes}
       />
     </FormBase>
   )

@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { useStore } from "@tanstack/react-store"
 import { useNavigate, useSearchParams } from "react-router"
 import { toast } from "sonner"
 import { useAppForm } from "@/hooks/use-form"
@@ -51,7 +52,6 @@ export function Daftar() {
   const { data: myApps } = useMyBeasiswa(!!user)
   const containerRef = useRef<HTMLDivElement>(null)
   const beasiswaFieldRef = useRef<HTMLDivElement>(null)
-  const isEligible = ipk >= 3
   const [pickerOpen, setPickerOpen] = useState(false)
 
   const options = useMemo(
@@ -126,7 +126,8 @@ export function Daftar() {
       if (value.kota_domisili) fd.append("kota_domisili", value.kota_domisili)
       fd.append("catatan", value.catatan)
       const photo = (value.photo ?? [])[0]
-      if (!(photo instanceof File)) { playSound("error"); toast.error("Foto wajib", { description: "Unggah foto profil JPG/PNG." }); return }
+      if (!(photo instanceof File)) { playSound("error"); toast.error("Foto wajib", { description: "Unggah foto profil JPG/PNG/WEBP." }); return }
+      if (!/^image\/(jpeg|png|webp)$/i.test(photo.type) && !/\.(jpe?g|png|webp)$/i.test(photo.name)) { playSound("error"); toast.error("Format foto tidak valid", { description: "Hanya JPG, PNG, atau WEBP" }); return }
       if (photo.size > 2 * 1024 * 1024) { playSound("error"); toast.error("Foto terlalu besar", { description: "Maks 2MB" }); return }
       fd.append("photo", photo)
       const file = value.berkas[0]
@@ -149,6 +150,12 @@ export function Daftar() {
       }
     },
   })
+
+  // Real-time eligibility watcher: reacts to store changes AND manual edits
+  // in the IPK field. Submit + uploads lock the instant IPK drops below 3.0.
+  const liveIpk = useStore(form.store, (s) => s.values.ipk)
+  const effectiveIpk = typeof liveIpk === "number" && !Number.isNaN(liveIpk) ? liveIpk : ipk
+  const isEligible = effectiveIpk >= 3
 
   useEffect(() => {
     form.setFieldValue("ipk", ipk)
@@ -196,7 +203,7 @@ export function Daftar() {
     <div ref={containerRef} className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
       <SEO
         title="Daftar Beasiswa — Form Pendaftaran IPK ≥3.0"
-        description="Form pendaftaran beasiswa PIJAR. Filter IPK otomatis ≥3.0, upload berkas PDF/ZIP 5MB + foto JPG/PNG 2MB, status awal belum di verifikasi. Satu akun bisa daftar banyak program."
+        description="Form pendaftaran beasiswa PIJAR. Filter IPK otomatis ≥3.0, upload berkas PDF/ZIP 5MB + foto JPG/PNG/WEBP 2MB, status awal belum di verifikasi. Satu akun bisa daftar banyak program."
         path="/daftar"
         noindex
       />
@@ -209,7 +216,7 @@ export function Daftar() {
             <span className="text-xs font-bold">Kemdikbud RI • Portal Resmi</span>
           </div>
           <CardTitle className="font-head text-2xl font-black uppercase tracking-tight break-words">Form Pendaftaran Beasiswa</CardTitle>
-          <div className="text-sm font-medium break-words">IPK otomatis dari sistem. Berkas PDF/ZIP (Max 5MB) + Foto profil wajib JPG/PNG (Max 2MB). Status awal <b>belum di verifikasi</b>.</div>
+          <div className="text-sm font-medium break-words">IPK otomatis dari sistem. Berkas PDF/ZIP (Max 5MB) + Foto profil wajib JPG/PNG/WEBP (Max 2MB). Status awal <b>belum di verifikasi</b>.</div>
         </CardHeader>
         <CardContent className="pt-6 space-y-5">
           <div className="border-4 border-black bg-muted p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3">
@@ -237,11 +244,11 @@ export function Daftar() {
                 {(field) => (
                   <div className="space-y-2">
                     <span className="font-head text-sm font-black uppercase">Foto Profil * (wajib)</span>
-                    <field.ImagesUpload label="" maxFiles={1} disabled={!isEligible} accept="image/*" acceptedTypes={["image/jpeg","image/jpg","image/png"]} variant="avatar" />
+                    <field.ImagesUpload label="" maxFiles={1} disabled={!isEligible} accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp" acceptedTypes={["image/jpeg","image/jpg","image/png","image/webp"]} variant="avatar" helperText="Format: JPG, PNG, WEBP — Maks 2MB" maxBytes={2 * 1024 * 1024} />
                   </div>
                 )}
               </form.AppField>
-              <p className="text-xs font-bold text-black mt-1 break-words">Wajib: foto formal JPG/PNG max 2MB. Avatar bulat muncul otomatis setelah dipilih.</p>
+              <p className="text-xs font-bold text-black mt-1 break-words">Wajib: foto formal JPG/PNG/WEBP max 2MB. Avatar bulat muncul otomatis setelah dipilih.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6 min-w-0">
@@ -255,7 +262,7 @@ export function Daftar() {
                   <form.AppField name="hp">{(field) => <field.Input label="Nomor HP * (angka saja)" placeholder="081234567890" inputMode="numeric" />}</form.AppField>
                 </div>
                 <div className="gsap-field">
-                  <form.AppField name="tanggal_lahir">{(field) => <field.Input label="Tanggal Lahir" type="date" />}</form.AppField>
+                  <form.AppField name="tanggal_lahir">{(field) => <field.DateInput label="Tanggal Lahir" placeholder="Pilih tanggal lahir" />}</form.AppField>
                 </div>
               </div>
               <div className="space-y-6 min-w-0">
@@ -269,8 +276,8 @@ export function Daftar() {
                   <form.AppField name="kota_domisili">{(field) => <field.Input label="Kota Domisili" placeholder="Jakarta" />}</form.AppField>
                 </div>
                 <div className="gsap-field">
-                  <form.AppField name="ipk">{(field) => <field.Input label="IPK (otomatis sistem)" placeholder="IPK" disabled />}</form.AppField>
-                  <p className="text-xs text-muted-foreground mt-1 break-words">Diambil dari SIM Akademik — tidak dapat diedit.</p>
+                  <form.AppField name="ipk">{(field) => <field.Input label="IPK * (0.00 – 4.00)" placeholder="3.40" type="number" min={0} max={4} />}</form.AppField>
+                  <p className="text-xs text-muted-foreground mt-1 break-words">Diisi otomatis dari SIM Akademik — dapat dikoreksi manual. Di bawah 3.00 formulir terkunci.</p>
                 </div>
                 
               </div>
@@ -330,7 +337,7 @@ export function Daftar() {
                 </form.AppField>
               </div>
               <div className="gsap-field md:col-span-2">
-                <form.AppField name="berkas">{(field) => <field.ImagesUpload label="Upload Berkas * (Transkrip / Sertifikat — PDF/ZIP, Max 5MB)" maxFiles={1} disabled={!isEligible} accept=".pdf,.zip" acceptedTypes={["application/pdf","application/zip","application/x-zip-compressed"]} />}</form.AppField>
+                <form.AppField name="berkas">{(field) => <field.ImagesUpload label="Upload Berkas * (Transkrip / Sertifikat — PDF/ZIP, Max 5MB)" maxFiles={1} disabled={!isEligible} accept=".pdf,.zip" acceptedTypes={["application/pdf","application/zip","application/x-zip-compressed"]} helperText="Hanya PDF atau ZIP — maks 5MB per file • Pastikan transkrip/sertifikat jelas terbaca" maxBytes={5 * 1024 * 1024} />}</form.AppField>
                 <p className="text-xs font-bold text-black mt-1 break-words">Hanya PDF atau ZIP — sistem menolak JPG/PNG untuk berkas.</p>
               </div>
             </div>

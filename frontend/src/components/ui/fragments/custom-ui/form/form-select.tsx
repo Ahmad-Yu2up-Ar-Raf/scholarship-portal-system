@@ -63,7 +63,7 @@ export function FormSelect({
   const validClass = props.isValidClassName || "border-primary bg-primary/5 text-foreground"
   const invalidClass =
     props.isInvalidClassName ||
-    "border-red-600 bg-red-50 text-red-900"
+    "border-red-600 bg-red-50 text-red-900 placeholder:text-red-800"
 
   // 3. PRIORITAS VISUAL
   // FIX: Reset bg jadi transparan by default supaya gak kecampur bg-background milik shadcn.
@@ -96,12 +96,12 @@ export function FormSelect({
           aria-invalid={isInvalid}
           onBlur={field.handleBlur}
           className={cn(
-            "w-full border-2 border-black px-3 text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 ease-in-out text-foreground rounded-none",
+            "w-full border-4 border-black px-3 text-sm shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 ease-in-out text-foreground rounded-none",
             "focus:ring-0 focus:ring-offset-0 focus:outline-none data-[state=open]:ring-0",
             "!h-12 !rounded-none",
             containerStateClass,
             isInvalid &&
-              "placeholder:text-destructive/70 data-placeholder:text-destructive/70 text-destructive",
+              "placeholder:text-red-800 data-placeholder:text-red-800 text-red-900 font-bold",
             isValid && "font-medium text-foreground",
             !isInvalid && !isValid && defaultInputColor
           )}

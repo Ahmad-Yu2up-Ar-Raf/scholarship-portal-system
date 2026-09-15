@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Spinner } from "@/components/ui/spinner"
 import { useBeasiswaPaged } from "@/features/beasiswa/hooks"
+import type { BeasiswaSubmission } from "@/features/beasiswa/types"
 import { unlockSound } from "@/lib/sound"
 import gsap from "gsap"
 import { SEO } from "@/components/seo/SEO"
@@ -18,9 +19,11 @@ const PAGE_SIZE = 5
 
 const RANK_STYLE = [
   "bg-yellow-300",
-  "bg-cyan-300",
-  "bg-orange-300",
+  "bg-slate-200",
+  "bg-amber-400",
 ]
+
+const RANK_BADGE = ["JUARA 1", "PERINGKAT 2", "PERINGKAT 3"]
 
 export function Peringkat() {
   const [search, setSearch] = useState("")
@@ -40,7 +43,7 @@ export function Peringkat() {
   const top3 = (podium.data?.data ?? []).slice(0, 3)
   const ordered = top3.length === 3 ? [top3[1], top3[0], top3[2]] : top3
   const totalPages = list.data?.meta.last_page ?? 1
-  const [selected, setSelected] = useState<null | Record<string, unknown>>(null)
+  const [selected, setSelected] = useState<BeasiswaSubmission | null>(null)
   void celebrated
   void unlockSound
 
@@ -87,38 +90,51 @@ export function Peringkat() {
           {ordered.map((row, i) => {
             const rank = top3.length === 3 ? [2, 1, 3][i] : i + 1
             const isChampion = rank === 1
-            const height = isChampion ? "md:h-[320px]" : rank === 2 ? "md:h-[250px]" : "md:h-[200px]"
+            // Anak-tangga staircase: champion tallest center, runner-up left, third right.
+            const height = isChampion ? "md:h-80" : rank === 2 ? "md:h-64" : "md:h-52"
             const order = isChampion ? "order-1 md:order-2" : rank === 2 ? "order-2 md:order-1" : "order-3"
             return (
-              <button
-                key={row.id}
-                type="button"
-                onClick={() => setSelected(row as unknown as Record<string, unknown>)}
-                className={`podium-card podium-float-${i} ${order} ${height} text-left border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all flex-1 ${RANK_STYLE[rank - 1] ?? "bg-white"}`}
-                style={{ filter: "drop-shadow(0 0 18px rgba(255,220,88,0.45))" }}
-              >
-                <div className="flex items-center justify-between">
-                  <span className="font-head text-4xl font-black">#{rank}</span>
-                  {isChampion && (
-                    <span className="flex items-center gap-1 border-2 border-black bg-black text-white text-xs font-black px-2 py-1">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8l4 4 5-6 5 6 4-4-1.5 10h-15L3 8z" fill="#ffdc58" stroke="#000" strokeWidth="1.5" /></svg>
-                      JUARA 1
+              <div key={row.id} className={`${order} flex-1 flex flex-col min-w-0`}>
+                <button
+                  type="button"
+                  onClick={() => setSelected(row)}
+                  className={`podium-card podium-float-${i} ${height} text-left border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all w-full ${RANK_STYLE[rank - 1] ?? "bg-white"}`}
+                  style={{ filter: "drop-shadow(0 0 18px rgba(255,220,88,0.45))" }}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-head text-4xl font-black">#{rank}</span>
+                    <span className="flex items-center gap-1 border-2 border-black bg-black text-white text-xs font-black px-2 py-1 shrink-0">
+                      {isChampion ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 8l4 4 5-6 5 6 4-4-1.5 10h-15L3 8z" fill="#ffdc58" stroke="#000" strokeWidth="1.5" /></svg>
+                      ) : (
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z" fill="#fff" stroke="#000" strokeWidth="1.5" /></svg>
+                      )}
+                      {RANK_BADGE[rank - 1]}
                     </span>
-                  )}
-                </div>
-                <div className="mt-3 flex items-center gap-3">
-                  {row.photo_url ? (
-                    <img src={row.photo_url} alt={row.nama} className="rounded-full h-16 w-16 border-4 border-black object-cover shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0" />
-                  ) : (
-                    <div className="rounded-full h-16 w-16 border-4 border-black bg-white flex items-center justify-center font-head font-black text-xl shrink-0">{row.nama.charAt(0)}</div>
-                  )}
-                  <div className="min-w-0">
-                    <div className="font-head font-black break-words">{row.nama}</div>
-                    <div className="font-head text-2xl font-black">IPK {Number(row.ipk).toFixed(2)}</div>
                   </div>
+                  <div className="mt-3 flex items-center gap-3">
+                    {row.photo_url ? (
+                      <img src={row.photo_url} alt={row.nama} className="rounded-full h-16 w-16 border-4 border-black object-cover shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] shrink-0" />
+                    ) : (
+                      <div className="rounded-full h-16 w-16 border-4 border-black bg-white flex items-center justify-center font-head font-black text-xl shrink-0">{row.nama.charAt(0)}</div>
+                    )}
+                    <div className="min-w-0">
+                      <div className="font-head font-black break-words">{row.nama}</div>
+                      <div className="font-head text-2xl font-black">IPK {Number(row.ipk).toFixed(2)}</div>
+                    </div>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    <span className="text-xs font-bold border-2 border-black bg-white inline-block px-2 py-0.5 break-words">Semester {row.semester}</span>
+                    <span className="text-xs font-black border-2 border-black bg-green-400 inline-block px-2 py-0.5">LULUS</span>
+                    {isChampion && (
+                      <span className="text-xs font-black border-2 border-black bg-black text-white inline-block px-2 py-0.5">★ IPK TERTINGGI</span>
+                    )}
+                  </div>
+                </button>
+                <div className="border-4 border-t-0 border-black bg-black text-white text-center font-head font-black text-2xl py-2 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)]" aria-hidden="true">
+                  {rank}
                 </div>
-                <div className="mt-2 text-xs font-bold border-2 border-black bg-white inline-block px-2 py-0.5 break-words">Semester {row.semester}</div>
-              </button>
+              </div>
             )
           })}
           {!podium.isLoading && top3.length === 0 && (
@@ -150,7 +166,7 @@ export function Peringkat() {
                 </TableHeader>
                 <TableBody>
                   {list.data.data.map((row, idx) => (
-                    <TableRow key={row.id} className="border-b-2 border-black hover:bg-muted/50 cursor-pointer" onClick={() => setSelected(row as unknown as Record<string, unknown>)}>
+                    <TableRow key={row.id} className="border-b-2 border-black hover:bg-muted/50 cursor-pointer" onClick={() => setSelected(row)}>
                       <TableCell className="font-black">{(page - 1) * PAGE_SIZE + idx + 1}</TableCell>
                       <TableCell>
                         <span className="flex items-center gap-2">
@@ -185,8 +201,8 @@ export function Peringkat() {
         </CardContent>
       </Card>
 
-      <div className="text-center">
-        <Link to="/daftar" className="inline-block border-4 border-black bg-black text-white font-head font-black px-8 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">Daftar Sekarang →</Link>
+      <div>
+        <Link to="/daftar" className="block w-full text-center border-4 border-black bg-black text-white font-head font-black px-8 py-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">Daftar Sekarang →</Link>
       </div>
 
       <ApplicantDetailDialog selected={selected} onClose={() => setSelected(null)} />
@@ -194,32 +210,48 @@ export function Peringkat() {
   )
 }
 
-function ApplicantDetailDialog({ selected, onClose }: { selected: Record<string, unknown> | null; onClose: () => void }) {
+function statusPillClass(status: string): string {
+  const s = status.toLowerCase()
+  if (s.includes("lulus")) return "bg-green-400 text-black"
+  if (s.includes("tolak")) return "bg-red-500 text-white"
+  if (s.includes("proses") || s.includes("verifikasi") || s.includes("belum")) return "bg-yellow-300 text-black"
+  return "bg-white text-black"
+}
+
+function ApplicantDetailDialog({ selected, onClose }: { selected: BeasiswaSubmission | null; onClose: () => void }) {
   return (
-    <ResponsiveDialog open={!!selected} onOpenChange={(o: boolean) => { if (!o) onClose() }} title={String((selected as { nama?: string } | null)?.nama ?? "Detail Pendaftar")} description={`Status: ${String((selected as { status_ajuan?: string } | null)?.status_ajuan ?? "-")}`}>
+    <ResponsiveDialog open={!!selected} onOpenChange={(o: boolean) => { if (!o) onClose() }} title={selected?.nama ?? "Detail Pendaftar"} description={`Status: ${selected?.status_ajuan ?? "-"}`}>
       {selected && (
         <div className="space-y-4">
           <div className="flex items-center gap-4 border-4 border-black bg-primary p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-            {(selected as { photo_url?: string }).photo_url ? (
-              <img src={String((selected as { photo_url?: string }).photo_url)} alt="Foto" className="rounded-full h-24 w-24 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0" />
+            {selected.photo_url ? (
+              <img src={selected.photo_url} alt={`Foto ${selected.nama}`} className="rounded-full h-24 w-24 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] shrink-0" />
             ) : (
-              <div className="rounded-full h-24 w-24 border-4 border-black bg-white flex items-center justify-center font-head font-black text-2xl shrink-0">{String((selected as { nama?: string }).nama ?? "?").charAt(0)}</div>
+              <div className="rounded-full h-24 w-24 border-4 border-black bg-white flex items-center justify-center font-head font-black text-2xl shrink-0">{selected.nama.charAt(0)}</div>
             )}
             <div className="min-w-0">
-              <div className="font-head font-black text-lg break-words">{String((selected as { nama?: string }).nama ?? "-")}</div>
-              <div className="font-head text-3xl font-black">IPK {Number((selected as { ipk?: string }).ipk ?? 0).toFixed(2)}</div>
-              <Badge className="mt-1 border-2 border-black bg-black text-white font-black rounded-none">{String((selected as { status_ajuan?: string }).status_ajuan ?? "-")}</Badge>
+              <div className="font-head font-black text-lg break-words">{selected.nama}</div>
+              <div className="font-head text-3xl font-black">IPK {Number(selected.ipk).toFixed(2)}</div>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                <Badge className={`border-2 border-black font-black rounded-none ${statusPillClass(selected.status_ajuan)}`}>{selected.status_ajuan.toUpperCase()}</Badge>
+                <Badge className="border-2 border-black bg-white text-black font-bold rounded-none">Semester {selected.semester}</Badge>
+              </div>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-            <DetailItem label="Email" value={String((selected as { email?: string }).email ?? "-")} />
-            <DetailItem label="HP" value={String((selected as { hp?: string }).hp ?? "-")} />
-            <DetailItem label="Semester" value={String((selected as { semester?: string }).semester ?? "-")} />
-            <DetailItem label="Asal Sekolah" value={String((selected as { asal_sekolah?: string }).asal_sekolah ?? "-")} />
-            <DetailItem label="Kota" value={String((selected as { kota_domisili?: string }).kota_domisili ?? "-")} />
-            <DetailItem label="Beasiswa" value={String((selected as { beasiswa?: string }).beasiswa ?? "-")} />
-            <div className="sm:col-span-2"><DetailItem label="Berkas" value={String((selected as { berkas_path?: string }).berkas_path ?? "-")} /></div>
-            <div className="sm:col-span-2"><DetailItem label="Catatan" value={String((selected as { catatan?: string }).catatan ?? "-")} /></div>
+            <DetailItem label="Email" value={selected.email} />
+            <DetailItem label="HP" value={selected.hp} />
+            <DetailItem label="Asal Sekolah" value={selected.asal_sekolah ?? "-"} />
+            <DetailItem label="Kota Domisili" value={selected.kota_domisili ?? "-"} />
+            <DetailItem label="Tanggal Lahir" value={selected.tanggal_lahir ?? "-"} />
+            <DetailItem label="Beasiswa" value={selected.beasiswa ?? selected.scholarship?.name ?? "-"} />
+            <div className="sm:col-span-2">
+              <div className={`border-2 border-black p-2 break-words ${selected.berkas_path ? "bg-green-100" : "bg-red-100"}`}>
+                <div className="text-xs font-black uppercase">Dokumen Berkas</div>
+                <div className="font-bold">{selected.berkas_path ? "✓ Terlampir — transkrip/sertifikat terverifikasi" : "✗ Belum ada berkas terlampir"}</div>
+              </div>
+            </div>
+            <div className="sm:col-span-2"><DetailItem label="Catatan / Alasan Layak" value={selected.catatan ?? "-"} /></div>
           </div>
         </div>
       )}

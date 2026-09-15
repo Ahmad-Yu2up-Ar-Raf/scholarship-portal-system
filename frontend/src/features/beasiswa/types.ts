@@ -21,6 +21,10 @@ export type BeasiswaSubmission = {
   scholarship_id: number | null
   scholarship?: { id: number; name: string; slug: string; color_theme: string } | null
   asal_sekolah: string | null
+  nomor_telepon: string | null
+  tanggal_lahir: string | null
+  kota_domisili: string | null
+  catatan: string | null
   photo_path: string | null
   photo_url: string | null
   berkas_path: string | null

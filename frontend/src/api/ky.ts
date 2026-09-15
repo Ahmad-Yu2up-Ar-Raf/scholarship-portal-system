@@ -6,7 +6,10 @@ const base = rawBase.endsWith("/") ? rawBase : `${rawBase}/`
 // Ky v2: `prefixUrl` → `prefix` (throws if prefixUrl used). Use `prefix` only.
 export const api = ky.create({
   prefix: base,
-  timeout: 15000,
+  // Dev backend is single-threaded `php artisan serve` — parallel queries
+  // serialize server-side, so ky's 10s-class defaults kill the tail of a
+  // batch. 30s gives room without hiding real failures (benchmark: client.ts).
+  timeout: 30000,
   retry: 0,
   credentials: "include",
   hooks: {

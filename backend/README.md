@@ -68,7 +68,7 @@ OpenAPI via Scramble: `GET /docs/api` (jika enabled).
 - `status_ajuan` selalu server-injected `belum di verifikasi` saat create — tidak pernah dari client.
 - `scholarship_id` di-resolve dari field `beasiswa` (slug/nama) jika tidak dikirim — 422 jika tetap null.
 - Deduplikasi `per user + per scholarship`: `exists(user_id, scholarship_id)` → 422 `Anda sudah terdaftar pada beasiswa ini.` Migrasi `per_scholarship_unique_on_beasiswas` sudah fix constraint dari `unique(user_id)` awal.
-- `berkas` → `storage/berkas` (pdf/zip ≤5MB), `photo` → `storage/photos` (jpg/png ≤2MB). Validasi di `BeasiswaRequest`.
+- `berkas` → `storage/berkas` (pdf/zip ≤5MB), `photo` → `storage/photos` (jpg/png/webp ≤2MB). Validasi di `BeasiswaRequest`.
 - `ipk` 0–4, `semester` 1–8, `hp` regex `^[0-9]+$` 10–15.
 
 ---

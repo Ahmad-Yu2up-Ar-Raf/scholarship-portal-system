@@ -67,7 +67,7 @@ export function Home() {
         data={faqJsonLd([
           { q: "Apa syarat IPK untuk daftar beasiswa?", a: "IPK minimal 3.00. Sistem mengunci otomatis pilihan beasiswa, upload berkas, dan tombol Simpan jika IPK di bawah 3.00." },
           { q: "Semester berapa yang bisa mendaftar?", a: "Semester 1–8, program S1 reguler. Satu akun bisa mendaftar banyak beasiswa berbeda, tapi tidak bisa dua kali beasiswa yang sama." },
-          { q: "Berkas apa yang harus diunggah?", a: "Transkrip nilai PDF atau ZIP maksimal 5MB dan foto profil JPG/PNG maksimal 2MB, plus asal sekolah dan catatan minimal 20 karakter." },
+          { q: "Berkas apa yang harus diunggah?", a: "Transkrip nilai PDF atau ZIP maksimal 5MB dan foto profil JPG/PNG/WEBP maksimal 2MB, plus asal sekolah dan catatan minimal 20 karakter." },
         ])}
       />
       <JsonLd
@@ -132,7 +132,7 @@ export function Home() {
           {[
             { n: "01", t: "Cek Syarat IPK", d: "Pastikan IPK ≥3.00. Sistem cek otomatis. Jika <3.00, form terkunci.", c: "bg-primary" },
             { n: "02", t: "Isi Form", d: "Nama, Email, HP, Semester. Pilih Akademik / Non-Akademik.", c: "bg-cyan-300" },
-            { n: "03", t: "Unggah Berkas", d: "Transkrip PDF/ZIP, Max 5MB. Foto profil JPG/PNG.", c: "bg-[#ff6b9d] text-white" },
+            { n: "03", t: "Unggah Berkas", d: "Transkrip PDF/ZIP, Max 5MB. Foto profil JPG/PNG/WEBP.", c: "bg-[#ff6b9d] text-white" },
             { n: "04", t: "Verifikasi", d: "Status 'belum di verifikasi' → 'lulus' / 'ditolak' di /peringkat.", c: "bg-green-300" },
           ].map((s) => (
             <div key={s.n} className={`gsap-timeline border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${s.c}`}>
@@ -212,7 +212,7 @@ export function Home() {
           {[
             { n: "1", t: "Buat Akun", d: "Daftar gratis di /register. Satu akun untuk semua program.", c: "bg-primary" },
             { n: "2", t: "Pilih Beasiswa", d: "Jelajahi katalog, buka detail, klik Daftar Sekarang.", c: "bg-cyan-300" },
-            { n: "3", t: "Unggah Berkas", d: "Foto JPG/PNG + transkrip PDF/ZIP + alasan yang kuat.", c: "bg-[#ff6b9d] text-white" },
+            { n: "3", t: "Unggah Berkas", d: "Foto JPG/PNG/WEBP + transkrip PDF/ZIP + alasan yang kuat.", c: "bg-[#ff6b9d] text-white" },
             { n: "4", t: "Pantau Peringkat", d: "Cek status di /peringkat. Naik ke podium juara!", c: "bg-green-300" },
           ].map((s) => (
             <div key={s.n} className={`border-4 border-black p-4 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] ${s.c}`}>
@@ -233,7 +233,7 @@ export function Home() {
           </div>
           <div className="break-inside-avoid border-2 border-black bg-[#ff6b9d] text-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <div className="font-black">Panduan Berkas</div>
-            <p className="text-sm font-medium mt-2 break-words">Transkrip PDF atau ZIP (max 5MB), foto profil JPG/PNG (max 2MB), asal sekolah wajib. Pastikan file jelas, tidak blur.</p>
+            <p className="text-sm font-medium mt-2 break-words">Transkrip PDF atau ZIP (max 5MB), foto profil JPG/PNG/WEBP (max 2MB), asal sekolah wajib. Pastikan file jelas, tidak blur.</p>
           </div>
           <div className="break-inside-avoid border-2 border-black bg-green-300 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <div className="font-black">Timeline Verifikasi</div>

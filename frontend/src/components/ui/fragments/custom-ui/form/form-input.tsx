@@ -37,7 +37,7 @@ export function FormInput(props: FormControlProps & { disabled?: boolean }) {
   const validClass = props.isValidClassName || "border-primary bg-primary/5 text-foreground"
   const invalidClass =
     props.isInvalidClassName ||
-    "border-red-600 bg-red-50 text-red-900 focus-visible:text-red-900 focus-visible:placeholder:text-red-700"
+    "border-red-600 bg-red-50 text-red-900 focus-visible:text-red-900 focus-visible:placeholder:text-red-800 placeholder:text-red-800"
 
   // 3. PRIORITAS VISUAL
   let containerStateClass = "border-border "
@@ -73,7 +73,7 @@ export function FormInput(props: FormControlProps & { disabled?: boolean }) {
     <FormBase {...props}>
       <div
         className={cn(
-          "relative flex h-12 w-full items-center overflow-hidden rounded-none border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 ease-in-out",
+          "relative flex h-12 w-full items-center overflow-hidden rounded-none border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-300 ease-in-out",
           containerStateClass,
           isDisabled && "pointer-events-none opacity-50",
           props.className

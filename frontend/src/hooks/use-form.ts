@@ -10,11 +10,13 @@ import type { FormOptions, FormValidateOrFn, FormAsyncValidateOrFn, AppFieldExte
 import { FormInput } from "@/components/ui/fragments/custom-ui/form/form-input"
 import { FormSelect } from "@/components/ui/fragments/custom-ui/form/form-select"
 import { FormImagesUpload } from "@/components/ui/fragments/custom-ui/form/form-images-upload"
+import { FormDateInput } from "@/components/ui/fragments/custom-ui/form/form-date-input"
 
 const fieldComponents = {
   Input: FormInput,
   Select: FormSelect,
   ImagesUpload: FormImagesUpload,
+  DateInput: FormDateInput,
 } as const
 
 const formComponents = {} as Record<string, never>

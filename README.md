@@ -65,7 +65,7 @@ scholarship-portal-system/
 
 - **Katalog beasiswa** — search + filter `all/academic/non_academic/sports/arts/technology`, paginasi `per_page=6`, `Muat Lebih Banyak`.
 - **Detail beasiswa `/beasiswa/:slug`** — hero `color_theme`, syarat `•`-split, dokumen wajib, CTA `scholarship_id` pre-select.
-- **Pendaftaran `/daftar`** — form kondisional (lihat 10 aturan di bawah), `ScholarshipPickerDialog` live search, upload `berkas` PDF/ZIP ≤5MB + `photo` JPG/PNG ≤2MB, `status_ajuan` server-injected `belum di verifikasi`.
+- **Pendaftaran `/daftar`** — form kondisional (lihat 10 aturan di bawah), `ScholarshipPickerDialog` live search, upload `berkas` PDF/ZIP ≤5MB + `photo` JPG/PNG/WEBP ≤2MB, `status_ajuan` server-injected `belum di verifikasi`.
 - **Peringkat `/peringkat`** — podium top-3 `ipk_desc` + tabel paginasi `per_page=5` + search debounced 400ms, GSAP podium yoyo.
 - **Auth** — `/login`, `/register`, `/logout`, `GET /user`, `GET /my-beasiswa` (Sanctum).
 - **SEO** — `react-helmet-async` per-route, OpenGraph + Twitter, canonical, JSON-LD (`EducationalOrganization`, `CollectionPage`, `EducationalOccupationalProgram`, `BreadcrumbList`, `FAQPage`), `robots.txt` + `sitemap.xml`, `lang="id"`.
@@ -284,7 +284,7 @@ Disarikan dari `docs/Beasiswa-App.md:87-104`:
 | 6 | `ipk < 3` | `beasiswa`, `berkas`, `submit` **disabled** + `Alert` destructive |
 | 7 | `ipk ≥ 3` | autofocus `beasiswa` (ScholarshipPickerDialog) |
 | 8 | `berkas` | `pdf/zip` ≤5MB, max 1 file, drag-drop `MediaDropzone` |
-| 9 | `photo` | `jpg/png` ≤2MB, max 1 (tambahan lokal — avatar bulat) |
+| 9 | `photo` | `jpg/png/webp` ≤2MB, max 1 (tambahan lokal — avatar bulat) |
 | 10 | `status_ajuan` | server-injected `belum di verifikasi` → `lulus verifikasi` / `ditolak` (cek `/peringkat`) |
 
 ```
