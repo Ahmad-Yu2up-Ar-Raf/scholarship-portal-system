@@ -268,6 +268,7 @@ export function Daftar() {
                   <form.AppField name="beasiswa">
                     {(field) => {
                       const current = options.find((o) => o.value === field.state.value)
+                      const isSelectInvalid = field.state.meta.errors.length > 0
                       return (
                         <div className="space-y-2">
                           <span className="text-sm font-bold">Pilihan Beasiswa *</span>
@@ -276,8 +277,12 @@ export function Daftar() {
                             id={field.name}
                             disabled={!isEligible}
                             onClick={async () => { await unlockSound(); playSound("open"); setPickerOpen(true) }}
-                            aria-invalid={field.state.meta.errors.length > 0}
-                            className="w-full border-4 border-black bg-white p-3 text-left font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 break-words"
+                            aria-invalid={isSelectInvalid}
+                            className={cn(
+                              "w-full border-4 border-black bg-white p-3 text-left font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] disabled:opacity-50 break-words",
+                              isSelectInvalid && "border-red-600 bg-red-50 text-red-900",
+                              !isSelectInvalid && "hover:border-black",
+                            )}
                           >
                             {current ? (
                               <span className="flex items-center gap-2">
