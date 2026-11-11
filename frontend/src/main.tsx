@@ -11,7 +11,7 @@ import App from './App.tsx'
 
 const qc = new QueryClient({
   defaultOptions: {
-    queries: { retry: false },
+    queries: { retry: false, refetchOnWindowFocus: false, refetchOnReconnect: false },
     mutations: { retry: false },
   },
 })

@@ -148,6 +148,8 @@ export function Daftar() {
   // Real-time eligibility watcher: reacts to store changes AND manual edits
   // in the IPK field. Submit + uploads lock the instant IPK drops below 3.0.
   const liveIpk = useStore(form.store, (s) => s.values.ipk)
+  const isSubmitting = useStore(form.baseStore, (s) => s.isSubmitting)
+  const isModified = useStore(form.store, (s) => s.isDirty)
   const effectiveIpk = typeof liveIpk === "number" && !Number.isNaN(liveIpk) ? liveIpk : ipk
   const isEligible = effectiveIpk >= 3
 
@@ -192,6 +194,18 @@ export function Daftar() {
     }, containerRef)
     return () => ctx.revert()
   }, [])
+
+  // Warn before unload when the form has unsaved changes and is not submitting
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isModified && !isSubmitting) {
+        e.preventDefault()
+        e.returnValue = ""
+      }
+    }
+    window.addEventListener("beforeunload", handler)
+    return () => window.removeEventListener("beforeunload", handler)
+  }, [isModified, isSubmitting])
 
   return (
     <div ref={containerRef} className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
