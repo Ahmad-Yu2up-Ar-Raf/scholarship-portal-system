@@ -29,7 +29,7 @@ export function AppLayout() {
     <div className="min-h-screen bg-background">
       <ScrollToTop />
       {!hideHeader && <Header />}
-      <main className="w-full max-w-7xl mx-auto px-4 md:px-8">
+      <main className="w-full max-w-7xl mx-auto px-4 md:px-0">
         <PageTransition>
           <Outlet />
         </PageTransition>

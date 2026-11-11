@@ -75,6 +75,7 @@ export function Header() {
           <NavLink to="/beasiswa" className={linkCls} onClick={handleNav}>Beasiswa</NavLink>
           <NavLink to="/daftar" className={linkCls} onClick={handleNav}>Daftar</NavLink>
           <NavLink to="/peringkat" className={linkCls} onClick={handleNav}>Peringkat</NavLink>
+          {user && <NavLink to="/beasiswa-ku" className={linkCls} onClick={handleNav}>Beasiswa-Ku</NavLink>}
           {user ? (
             <>
               <span className="hidden sm:inline text-xs font-bold border-2 border-black bg-muted px-2 py-1 max-w-[140px] truncate">{user.email}</span>

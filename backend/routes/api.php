@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\BeasiswaController;
 use App\Http\Controllers\ScholarshipController;
 use Illuminate\Http\Request;
@@ -16,17 +18,13 @@ Route::prefix('v1')->group(function () {
     Route::post('/beasiswa', [BeasiswaController::class, 'store'])->middleware('auth:sanctum')->name('beasiswa.store');
 
     // Auth — Sanctum SPA (uses cookies, but also supports Bearer via HasApiTokens)
-    Route::post('/register', [\App\Http\Controllers\Auth\RegisteredUserController::class, 'store'])->name('api.register');
-    Route::post('/login', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'store'])->name('api.login');
-    Route::post('/logout', [\App\Http\Controllers\Auth\AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum')->name('api.logout');
+    Route::post('/register', [RegisteredUserController::class, 'store'])->name('api.register');
+    Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('api.login');
+    Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])->middleware('auth:sanctum')->name('api.logout');
     Route::get('/user', function (Request $request) {
         return response()->json(['data' => $request->user()]);
     })->middleware('auth:sanctum')->name('api.user');
 
-    // Current user's applications (for per-scholarship guard)
-    Route::get('/my-beasiswa', function (Request $request) {
-        $user = $request->user();
-        $apps = \App\Models\Beasiswa::with('scholarship')->where('user_id', $user->id)->orderByDesc('created_at')->get();
-        return response()->json(['data' => \App\Http\Resources\BeasiswaResource::collection($apps)]);
-    })->middleware('auth:sanctum')->name('beasiswa.my');
+    // Current user's applications — all statuses, newest first.
+    Route::get('/my-beasiswa', [BeasiswaController::class, 'myBeasiswa'])->middleware('auth:sanctum')->name('beasiswa.my');
 });

@@ -2,10 +2,15 @@
 
 namespace App\Models;
 
+use Database\Factories\BeasiswaFactory;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Beasiswa extends Model
 {
+    /** @use HasFactory<BeasiswaFactory> */
+    use HasFactory;
+
     protected $fillable = [
         'nama',
         'email',
@@ -20,7 +25,6 @@ class Beasiswa extends Model
         'tanggal_lahir',
         'kota_domisili',
         'catatan',
-        'photo_path',
         'berkas_path',
         'status_ajuan',
     ];

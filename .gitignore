@@ -44,7 +44,7 @@ Thumbs.db
 .idea/
 *.suo
 *.swp
-
+frontend/docs/dump
 # Logs & caches
 *.log
 npm-debug.log*

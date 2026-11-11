@@ -25,8 +25,6 @@ export type BeasiswaSubmission = {
   tanggal_lahir: string | null
   kota_domisili: string | null
   catatan: string | null
-  photo_path: string | null
-  photo_url: string | null
   berkas_path: string | null
   berkas_url: string | null
   status_ajuan: string

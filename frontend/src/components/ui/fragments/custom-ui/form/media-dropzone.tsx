@@ -21,8 +21,7 @@ interface MediaDropzoneProps {
   disabled?: boolean
   accept?: string
   acceptedTypes?: string[]
-  variant?: "document" | "avatar"
-  /** Overrides the helper line under the dropzone (variant-aware default otherwise). */
+  /** Overrides the helper line under the dropzone. */
   helperText?: string
   /** Per-field size cap in bytes (defaults to 5MB document cap). */
   maxBytes?: number
@@ -125,7 +124,6 @@ export function MediaDropzone({
   disabled = false,
   accept,
   acceptedTypes,
-  variant = "document",
   helperText,
   maxBytes,
 }: MediaDropzoneProps) {
@@ -138,9 +136,7 @@ export function MediaDropzone({
   const exts = dotExts.length > 0 ? dotExts : DEFAULT_ACCEPTED_EXTS
   const effectiveAccept = accept ?? DEFAULT_ACCEPTED_TYPES.join(",") + "," + DEFAULT_ACCEPTED_EXTS.join(",")
   const limit = maxBytes ?? MAX_BYTES
-  const defaultHelper = variant === "avatar"
-    ? "Format: JPG, PNG, WEBP — Maks 2MB • Foto formal terlihat jelas"
-    : "Hanya PDF atau ZIP — maks 5MB per file • Pastikan transkrip/sertifikat jelas terbaca"
+  const defaultHelper = "Hanya PDF atau ZIP — maks 5MB per file • Pastikan transkrip/sertifikat jelas terbaca"
 
   const addFiles = useCallback(
     (incoming: FileList | File[]) => {
@@ -189,33 +185,6 @@ export function MediaDropzone({
 
   const atLimit = items.length >= (multiple ? maxFiles : 1)
 
-  if (variant === "avatar" && items.length > 0) {
-    const item = items[0]
-    const isFile = typeof item !== "string"
-    const src = isFile ? previewFor(item as File) : (item as string)
-    const name = isFile ? (item as File).name : (item as string).split("/").pop() ?? ""
-    return (
-      <div className={cn("flex w-full items-center gap-4", disabled && "pointer-events-none opacity-50")}>
-        <div className="relative shrink-0">
-          {/* key forces a fresh <img> per file so the preview can never stick on a stale blob */}
-          <img key={isFile ? `${(item as File).name}-${(item as File).size}-${(item as File).lastModified}` : (item as string)} src={src} alt={name || "Foto profil"} className="rounded-full h-32 w-32 md:h-40 md:w-40 border-4 border-black object-cover shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]" />
-          <Button
-            type="button"
-            aria-label="Hapus foto"
-            onClick={() => handleRemove(item)}
-            className="absolute -right-1 -top-1 flex h-9 w-9 items-center justify-center rounded-full border-2 border-black bg-red-500 p-0 text-white shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:bg-red-600"
-          >
-            <HugeiconsIcon icon={Cancel01Icon} className="size-4 text-white" />
-          </Button>
-        </div>
-        <div className="min-w-0">
-          <div className="font-head text-sm font-black truncate">{name}</div>
-          <div className="text-xs font-bold text-muted-foreground">Foto terpasang — klik X untuk ganti</div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div
       className={cn(
@@ -223,7 +192,7 @@ export function MediaDropzone({
         disabled && "pointer-events-none opacity-50"
       )}
     >
-      {items.length > 0 && variant !== "avatar" && (
+      {items.length > 0 && (
         <div className={cn("grid gap-3", multiple ? "grid-cols-1" : "grid-cols-1")}>
           {items.map((item, index) => (
             <Tile

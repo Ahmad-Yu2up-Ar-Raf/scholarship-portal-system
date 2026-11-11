@@ -13,22 +13,20 @@ interface FormImagesUploadProps extends Omit<
   disabled?: boolean
   accept?: string
   acceptedTypes?: string[]
-  variant?: "document" | "avatar"
   helperText?: string
   maxBytes?: number
 }
 
 /**
- * FormImagesUpload — multi-image gallery field. Holds canonical Cloudinary
- * URLs (existing assets) and/or raw `File`s (pending deferred uploads;
- * resolved to URLs during form submit).
+ * FormImagesUpload — multi-file gallery field. Holds canonical stored
+ * URLs (existing assets) and/or raw `File`s (pending uploads; resolved to
+ * URLs during form submit).
  */
 export function FormImagesUpload({
   maxFiles = 8,
   disabled,
   accept,
   acceptedTypes,
-  variant = "document",
   helperText,
   maxBytes,
   ...props
@@ -63,7 +61,6 @@ export function FormImagesUpload({
         disabled={isDisabled}
         accept={accept}
         acceptedTypes={acceptedTypes}
-        variant={variant}
         helperText={helperText}
         maxBytes={maxBytes}
       />

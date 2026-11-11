@@ -44,7 +44,6 @@ export async function createBeasiswa(formData: FormData): Promise<BeasiswaSubmis
 }
 
 export async function fetchMyBeasiswa(): Promise<BeasiswaSubmission[]> {
-  const res = await api.get("my-beasiswa").json<{ data: BeasiswaSubmission[] | BeasiswaSubmission | null }>()
-  if (Array.isArray(res.data)) return res.data
-  return res.data ? [res.data] : []
+  const res = await api.get("my-beasiswa").json<{ data: BeasiswaSubmission[] }>()
+  return res.data
 }

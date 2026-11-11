@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Http\Requests\BeasiswaRequest;
 use App\Http\Resources\BeasiswaResource;
 use App\Models\Beasiswa;
+use App\Models\Scholarship;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class BeasiswaController extends Controller
 {
@@ -55,17 +56,17 @@ class BeasiswaController extends Controller
         // Enforce 1 registration per (user, scholarship) — users may apply
         // to many DIFFERENT scholarships, but never the same one twice.
         $user = $request->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['message' => 'Unauthenticated. Silakan login.'], 401);
         }
 
         // Resolve scholarship_id from beasiswa string if not provided
         $scholarshipId = $validated['scholarship_id'] ?? null;
-        if (!$scholarshipId && !empty($validated['beasiswa'])) {
-            $scholarship = \App\Models\Scholarship::where('slug', $validated['beasiswa'])->orWhere('name', $validated['beasiswa'])->first();
+        if (! $scholarshipId && ! empty($validated['beasiswa'])) {
+            $scholarship = Scholarship::where('slug', $validated['beasiswa'])->orWhere('name', $validated['beasiswa'])->first();
             $scholarshipId = $scholarship?->id;
         }
-        if (!$scholarshipId) {
+        if (! $scholarshipId) {
             return response()->json(['message' => 'scholarship_id wajib diisi.', 'errors' => ['scholarship_id' => ['Pilih beasiswa.']]], 422);
         }
 
@@ -79,10 +80,6 @@ class BeasiswaController extends Controller
         $berkasPath = null;
         if ($request->hasFile('berkas')) {
             $berkasPath = $request->file('berkas')->store('berkas', 'public');
-        }
-        $photoPath = null;
-        if ($request->hasFile('photo')) {
-            $photoPath = $request->file('photo')->store('photos', 'public');
         }
 
         $beasiswa = Beasiswa::create([
@@ -99,7 +96,6 @@ class BeasiswaController extends Controller
             'tanggal_lahir' => $validated['tanggal_lahir'] ?? null,
             'kota_domisili' => $validated['kota_domisili'] ?? null,
             'catatan' => $validated['catatan'] ?? null,
-            'photo_path' => $photoPath,
             'berkas_path' => $berkasPath,
             'status_ajuan' => 'belum di verifikasi',
         ]);
@@ -108,6 +104,16 @@ class BeasiswaController extends Controller
             'data' => new BeasiswaResource($beasiswa),
             'message' => 'Pendaftaran beasiswa berhasil',
         ], 201);
+    }
+
+    public function myBeasiswa(Request $request): AnonymousResourceCollection
+    {
+        $applications = Beasiswa::with('scholarship')
+            ->where('user_id', $request->user()->id)
+            ->orderByDesc('created_at')
+            ->get();
+
+        return BeasiswaResource::collection($applications);
     }
 
     public function show(Beasiswa $beasiswa): JsonResponse

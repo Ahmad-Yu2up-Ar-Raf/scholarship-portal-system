@@ -15,7 +15,6 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('scholarship_id')->nullable()->constrained()->nullOnDelete();
             $table->string('asal_sekolah')->nullable();
-            $table->string('photo_path')->nullable();
             $table->unique('user_id');
         });
     }
@@ -29,7 +28,7 @@ return new class extends Migration
             $table->dropUnique(['user_id']);
             $table->dropForeign(['user_id']);
             $table->dropForeign(['scholarship_id']);
-            $table->dropColumn(['user_id', 'scholarship_id', 'asal_sekolah', 'photo_path']);
+            $table->dropColumn(['user_id', 'scholarship_id', 'asal_sekolah']);
         });
     }
 };

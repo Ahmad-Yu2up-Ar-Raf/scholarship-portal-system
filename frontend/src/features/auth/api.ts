@@ -15,11 +15,3 @@ export async function registerApi(name: string, email: string, password: string,
 export async function logoutApi() {
   await api.post("logout").json()
 }
-
-export async function meApi(): Promise<{ data: AuthUser }> {
-  return api.get("user").json<{ data: AuthUser }>()
-}
-
-export async function myBeasiswaApi(): Promise<{ data: unknown | null }> {
-  return api.get("my-beasiswa").json<{ data: unknown | null }>()
-}

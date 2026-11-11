@@ -35,7 +35,6 @@ class BeasiswaRequest extends FormRequest
             'tanggal_lahir' => ['nullable', 'date', 'before:today'],
             'kota_domisili' => ['nullable', 'string', 'min:3', 'max:100'],
             'catatan' => ['required', 'string', 'min:20', 'max:2000'],
-            'photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'berkas' => ['nullable', 'file', 'mimes:pdf,zip', 'max:5120'],
         ];
     }
@@ -49,8 +48,6 @@ class BeasiswaRequest extends FormRequest
             'semester.between' => 'Semester harus antara 1-8',
             'berkas.mimes' => 'Berkas hanya boleh pdf atau zip',
             'berkas.max' => 'Ukuran berkas maksimal 5MB',
-            'photo.image' => 'Foto harus berupa gambar',
-            'photo.mimes' => 'Foto hanya jpg/jpeg/png/webp',
             'asal_sekolah.required' => 'Asal sekolah wajib diisi',
             'catatan.required' => 'Ceritakan alasan layak menerima beasiswa (min 20 karakter)',
         ];
