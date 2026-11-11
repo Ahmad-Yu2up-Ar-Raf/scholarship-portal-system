@@ -23,6 +23,7 @@ import { playSound, unlockSound } from "@/lib/sound"
 import { SEO } from "@/components/seo/SEO"
 import { JsonLd, breadcrumbJsonLd } from "@/components/seo/JsonLd"
 import { SITE_URL } from "@/lib/seo"
+import { cn } from "@/lib/utils"
 
 const SEMESTER_OPTIONS = ["1","2","3","4","5","6","7","8"].map((v) => ({ value: v, label: `Semester ${v}` }))
 
@@ -38,7 +39,6 @@ const beasiswaFormSchema = z.object({
   asal_sekolah: z.string().trim().min(3, "Minimal 3 karakter").max(100),
   tanggal_lahir: z.string().trim().max(30),
   kota_domisili: z.string().trim().max(100),
-  photo: z.array(z.union([z.instanceof(File), z.string()])).min(1, "Foto profil wajib diunggah").max(1, "Maks 1 foto"),
   berkas: z.array(z.union([z.instanceof(File), z.string()])).min(1, "Upload berkas wajib").max(1, "Maks 1 berkas"),
 })
 
@@ -93,7 +93,6 @@ export function Daftar() {
       tanggal_lahir: "",
       kota_domisili: "",
       catatan: "",
-      photo: [] as Array<File | string>,
       berkas: [] as Array<File | string>,
     },
     validators: {
@@ -125,11 +124,6 @@ export function Daftar() {
       if (value.tanggal_lahir) fd.append("tanggal_lahir", value.tanggal_lahir)
       if (value.kota_domisili) fd.append("kota_domisili", value.kota_domisili)
       fd.append("catatan", value.catatan)
-      const photo = (value.photo ?? [])[0]
-      if (!(photo instanceof File)) { playSound("error"); toast.error("Foto wajib", { description: "Unggah foto profil JPG/PNG/WEBP." }); return }
-      if (!/^image\/(jpeg|png|webp)$/i.test(photo.type) && !/\.(jpe?g|png|webp)$/i.test(photo.name)) { playSound("error"); toast.error("Format foto tidak valid", { description: "Hanya JPG, PNG, atau WEBP" }); return }
-      if (photo.size > 2 * 1024 * 1024) { playSound("error"); toast.error("Foto terlalu besar", { description: "Maks 2MB" }); return }
-      fd.append("photo", photo)
       const file = value.berkas[0]
       if (!(file instanceof File)) { playSound("error"); toast.error("Berkas wajib", { description: "Unggah transkrip PDF/ZIP." }); return }
       if (file.size > 5 * 1024 * 1024) { playSound("error"); toast.error("Berkas terlalu besar", { description: "Maks 5MB" }); return }
@@ -140,8 +134,8 @@ export function Daftar() {
         await create.mutateAsync(fd)
         processing?.stop?.()
         playSound("success", { volume: 0.9 })
-        toast.success("Pendaftaran berhasil", { description: 'Status: "belum di verifikasi" — cek di Hasil.' })
-        navigate("/peringkat")
+        toast.success("Pendaftaran berhasil", { description: 'Status: "belum di verifikasi" — cek di Beasiswa-Ku.' })
+        navigate("/beasiswa-ku")
       } catch (e) {
         processing?.stop?.()
         playSound("error")
@@ -203,7 +197,7 @@ export function Daftar() {
     <div ref={containerRef} className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-12">
       <SEO
         title="Daftar Beasiswa — Form Pendaftaran IPK ≥3.0"
-        description="Form pendaftaran beasiswa PIJAR. Filter IPK otomatis ≥3.0, upload berkas PDF/ZIP 5MB + foto JPG/PNG/WEBP 2MB, status awal belum di verifikasi. Satu akun bisa daftar banyak program."
+        description="Form pendaftaran beasiswa PIJAR. Filter IPK otomatis ≥3.0, upload berkas PDF/ZIP 5MB, status awal belum di verifikasi. Satu akun bisa daftar banyak program."
         path="/daftar"
         noindex
       />
@@ -216,7 +210,7 @@ export function Daftar() {
             <span className="text-xs font-bold">Kemdikbud RI • Portal Resmi</span>
           </div>
           <CardTitle className="font-head text-2xl font-black uppercase tracking-tight break-words">Form Pendaftaran Beasiswa</CardTitle>
-          <div className="text-sm font-medium break-words">IPK otomatis dari sistem. Berkas PDF/ZIP (Max 5MB) + Foto profil wajib JPG/PNG/WEBP (Max 2MB). Status awal <b>belum di verifikasi</b>.</div>
+          <div className="text-sm font-medium break-words">IPK otomatis dari sistem. Berkas PDF/ZIP (Max 5MB) wajib diunggah. Status awal <b>belum di verifikasi</b>.</div>
         </CardHeader>
         <CardContent className="pt-6 space-y-5">
           <div className="border-4 border-black bg-muted p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-3">
@@ -239,17 +233,6 @@ export function Daftar() {
           )}
 
           <form onSubmit={(e) => { e.preventDefault(); form.handleSubmit() }} className="space-y-6" noValidate>
-            <div className="gsap-field border-4 border-black bg-cyan-300 p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <form.AppField name="photo">
-                {(field) => (
-                  <div className="space-y-2">
-                    <span className="font-head text-sm font-black uppercase">Foto Profil * (wajib)</span>
-                    <field.ImagesUpload label="" maxFiles={1} disabled={!isEligible} accept="image/jpeg,image/jpg,image/png,image/webp,.jpg,.jpeg,.png,.webp" acceptedTypes={["image/jpeg","image/jpg","image/png","image/webp"]} variant="avatar" helperText="Format: JPG, PNG, WEBP — Maks 2MB" maxBytes={2 * 1024 * 1024} />
-                  </div>
-                )}
-              </form.AppField>
-              <p className="text-xs font-bold text-black mt-1 break-words">Wajib: foto formal JPG/PNG/WEBP max 2MB. Avatar bulat muncul otomatis setelah dipilih.</p>
-            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6 min-w-0">
                 <div className="gsap-field">
@@ -328,7 +311,10 @@ export function Daftar() {
                           placeholder="Ceritakan prestasimu dan kenapa layak menerima beasiswa ini (min 20 karakter)..."
                           rows={4}
                           aria-invalid={hasErr}
-                          className="w-full border-4 border-black bg-white p-4 font-medium shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none outline-none focus:bg-yellow-50 break-words"
+                          className={cn(
+                            "w-full border-4 border-black bg-white p-4 font-medium shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] rounded-none outline-none focus:bg-yellow-50 break-words",
+                            hasErr && "border-red-600 bg-red-50 text-red-900 placeholder:text-red-700 focus-visible:text-red-900",
+                          )}
                         />
                         {hasErr ? <p className="text-xs font-black text-red-600 break-words">⚠ {String(((field.state.meta.errors[0] as unknown) as { message?: string })?.message ?? field.state.meta.errors[0])}</p> : null}
                       </div>
